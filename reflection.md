@@ -380,6 +380,58 @@ func walk(x interface{}, fn func(input string)) {
 
 When you're doing a comparison on the same value more than once _generally_ refactoring into a `switch` will improve readability and make your code easier to extend.
 
+How about the case that the Struct with unexported field?
+
+## Write the test first
+
+Add this case
+
+```
+{
+	"struct with unexported field",
+	struct {
+		Name           string
+		unexportedName string
+	}{
+		"Chikahiro", "secret name",
+	},
+	[]string{"Chikahiro"},
+},
+```
+
+## Try to run the test
+
+```
+=== RUN   TestWalk/struct_with_unexported_field
+    reflection_test.go:125: got []string{"Chikahiro", "secret name"}, want []string{"Chikahiro"}
+```
+
+## Write enough code to make it pass
+
+```go
+func walk(x interface{}, fn func(input string)) {
+	val := reflect.ValueOf(x)
+
+	if val.Kind() == reflect.Pointer {
+		val = val.Elem()
+	}
+
+	for i := 0; i < val.NumField(); i++ {
+		field := val.Field(i)
+		if !reflect.VisibleFields(val.Type())[i].IsExported() {
+			continue
+		}
+
+		switch field.Kind() {
+		case reflect.String:
+			fn(field.String())
+		case reflect.Struct:
+			walk(field.Interface(), fn)
+		}
+	}
+}
+```
+
 What if the value of the struct passed in is a pointer?
 
 ## Write the test first
