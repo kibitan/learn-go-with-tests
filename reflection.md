@@ -574,7 +574,14 @@ func walk(x interface{}, fn func(input string)) {
 	}
 
 	for i := 0; i < numberOfValues; i++ {
-		walk(getField(i).Interface(), fn)
+		field := getField(i)
+
+		switch field.Kind() {
+		case reflect.String:
+			fn(field.String())
+		case reflect.Struct:
+			walk(field.Interface(), fn)
+		}
 	}
 }
 ```
@@ -636,7 +643,14 @@ func walk(x interface{}, fn func(input string)) {
 	}
 
 	for i := 0; i < numberOfValues; i++ {
-		walk(getField(i).Interface(), fn)
+		field := getField(i)
+
+		switch field.Kind() {
+		case reflect.String:
+			fn(field.String())
+		case reflect.Struct:
+			walk(field.Interface(), fn)
+		}
 	}
 }
 ```
