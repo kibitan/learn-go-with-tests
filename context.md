@@ -15,10 +15,10 @@ We will exercise a scenario where a user cancels the request before the data can
 I've set up some code on the happy path to get us started. Here is our server code.
 
 ```go
-func Server(store Store) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func Server(store Store) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, store.Fetch())
-	}
+	})
 }
 ```
 
